@@ -12,7 +12,7 @@ def install_requires() -> typing.List[str]:
     """Find the install requires strings from requirements.txt"""
     requires = []
     with open(
-        os.path.join(os.path.dirname(__file__), "requirements.txt"), "r"
+        Path(__file__).absolute().parent.joinpath('requirements.txt'), "r"
     ) as requirments_txt_handle:
         requires = [
             x
@@ -24,7 +24,7 @@ def install_requires() -> typing.List[str]:
 
 setup(
     name='scrapy-bigquery',
-    version='1.0.1',
+    version='1.0.2',
     description='Scrapy pipeline to store items into BigQuery',
     long_description=long_description,
     long_description_content_type='text/markdown',
