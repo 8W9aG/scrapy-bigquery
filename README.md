@@ -1,2 +1,61 @@
 # scrapy-bigquery
-A Big Query pipeline for scrapy
+
+A Big Query pipeline to store items into [Google BigQuery](https://cloud.google.com/bigquery/).
+
+## Dependencies :globe_with_meridians:
+
+* [Python 3.9](https://www.python.org/downloads/release/python-390/)
+* [Scrapy 2.5.0](https://scrapy.org/)
+* [Google Cloud Bigquery](https://pypi.org/project/google-cloud-bigquery/)
+* [Bigquery Schema Generator](https://github.com/bxparks/bigquery-schema-generator)
+
+## Installation :inbox_tray:
+
+This is a python package hosted on pypi, so to install simply run the following command:
+
+`pip install scrapy-bigquery`
+
+## Settings
+
+### BIGQUERY_DATASET (Required)
+
+The name of the bigquery dataset to post to.
+
+### BIGQUERY_TABLE (Required)
+
+The name of the bigquery table in the dataset to post to.
+
+### BIGQUERY_SERVICE_ACCOUNT (Required)
+
+The base64'd JSON of the [Google Service Account](https://cloud.google.com/iam/docs/service-accounts) used to authenticate with Google BigQuery. You can generate it from a service account like so:
+
+`cat service-account.json | jq . -c | base64`
+
+### BIGQUERY_ADD_SCRAPED_TIME (Optional)
+
+Whether to add the time the item was scraped to the item when posting it to BigQuery. This will add current datetime to the column `scraped_time` in the BigQuery table.
+
+### BIGQUERY_ADD_SCRAPER_NAME (Optional)
+
+Whether to add the name of the scraper to the item when posting it to BigQuery. This will add the scrapers name to the column `scraper` in the BigQuery table.
+
+## Usage example :eyes:
+
+In order to use this plugin simply add the following settings and substitute your variables:
+
+```
+BIGQUERY_DATASET = "my-dataset"
+BIGQUERY_TABLE = "my-table"
+BIGQUERY_SERVICE_ACCOUNT = "eyJ0eX=="
+ITEM_PIPELINES = {
+    "bigquerypipeline.pipelines.BigQueryPipeline": 301
+}
+```
+
+The pipeline will attempt to create a dataset/table if none exist by inferring the type from the dictionaries it processes, however be aware that this can be flaky (especially if you have nulls in the dictionary), so it is recommended you create the table prior to running.
+
+If you want to specify a table for a specific item, you can add the keys "BIGQUERY_DATASET" and "BIGQUERY_TABLE" to the item you pass back to the pipeline. This will override where the item is posted, allowing you to handle more than one item type in a scraper. The keys/values here will not be part of the final item in the table.
+
+## License :memo:
+
+The project is available under the [MIT License](LICENSE).
