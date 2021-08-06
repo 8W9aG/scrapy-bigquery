@@ -2,7 +2,6 @@
 from setuptools import setup, find_packages
 from pathlib import Path
 import typing
-import os
 
 readme_path = Path(__file__).absolute().parent.joinpath('README.md')
 long_description = readme_path.read_text(encoding='utf-8')
@@ -24,7 +23,7 @@ def install_requires() -> typing.List[str]:
 
 setup(
     name='scrapy-bigquery',
-    version='1.0.3',
+    version='1.0.4',
     description='Scrapy pipeline to store items into BigQuery',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -40,6 +39,5 @@ setup(
     license='MIT',
     install_requires=install_requires(),
     zip_safe=False,
-    packages=find_packages(),
-    python_requires='>=3.7'
+    packages=find_packages()
 )
