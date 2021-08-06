@@ -4,10 +4,10 @@ A Big Query pipeline to store items into [Google BigQuery](https://cloud.google.
 
 ## Dependencies :globe_with_meridians:
 
-* [Python 3.9](https://www.python.org/downloads/release/python-390/)
-* [Scrapy 2.5.0](https://scrapy.org/)
-* [Google Cloud Bigquery](https://pypi.org/project/google-cloud-bigquery/)
-* [Bigquery Schema Generator](https://github.com/bxparks/bigquery-schema-generator)
+* [Python 3.7](https://www.python.org/downloads/release/python-370/)
+* [Scrapy 2.4.0](https://scrapy.org/)
+* [Google Cloud Bigquery 2.23.2](https://pypi.org/project/google-cloud-bigquery/)
+* [Bigquery Schema Generator 1.4](https://github.com/bxparks/bigquery-schema-generator)
 
 ## Installation :inbox_tray:
 
