@@ -1,5 +1,9 @@
 # scrapy-bigquery
 
+<a href="https://pypi.org/project/scrapy-bigquery/">
+    <img alt="PyPi" src="https://img.shields.io/pypi/v/scrapy-bigquery">
+</a>
+
 A Big Query pipeline to store items into [Google BigQuery](https://cloud.google.com/bigquery/).
 
 ## Dependencies :globe_with_meridians:
