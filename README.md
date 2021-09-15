@@ -43,6 +43,10 @@ Whether to add the time the item was scraped to the item when posting it to BigQ
 
 Whether to add the name of the scraper to the item when posting it to BigQuery. This will add the scrapers name to the column `scraper` in the BigQuery table.
 
+### BIGQUERY_ADD_SCRAPER_SESSION (Optional)
+
+Whether to add the session ID of the scraper to the item when posting it to BigQuery. This will add the scrapers session ID to the column `scraper_session_id` in the BigQuery table.
+
 ## Usage example :eyes:
 
 In order to use this plugin simply add the following settings and substitute your variables:

@@ -23,7 +23,7 @@ def install_requires() -> typing.List[str]:
 
 setup(
     name='scrapy-bigquery',
-    version='1.0.4',
+    version='1.0.5',
     description='Scrapy pipeline to store items into BigQuery',
     long_description=long_description,
     long_description_content_type='text/markdown',

@@ -3,6 +3,7 @@ import base64
 import datetime
 import json
 import typing
+import uuid
 
 import scrapy
 from bigquery_schema_generator.generate_schema import SchemaGenerator
@@ -32,6 +33,7 @@ class BigQueryPipeline:
             pass
         self.tables_created: typing.Set[str] = set()
         self.schema_generator = SchemaGenerator(input_format="dict")
+        self.session_id = str(uuid.uuid4())
 
     @classmethod
     def from_crawler(cls, crawler) -> typing.Any:
@@ -73,6 +75,8 @@ class BigQueryPipeline:
             item["scraped_time"] = datetime.datetime.now()
         if spider.settings.get("BIGQUERY_ADD_SCRAPER_NAME", False):
             item["scraper"] = spider.name
+        if spider.settings.get("BIGQUERY_ADD_SCRAPER_SESSION", False):
+            item["scraper_session_id"] = spider.name
         for key in item:
             if isinstance(item[key], datetime.datetime):
                 item[key] = str(item[key])
