@@ -102,3 +102,5 @@ class BigQueryPipeline:
             self.client.create_table(table)
         except Conflict:
             pass
+        except Exception:
+            pass
