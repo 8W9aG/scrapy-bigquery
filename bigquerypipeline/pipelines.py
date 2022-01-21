@@ -52,6 +52,9 @@ class BigQueryPipeline:
     def process_item(self, item: typing.Dict, spider: scrapy.Spider) -> typing.Dict:
         table_id, item = self.table_id(item, spider)
         self.ensure_table_created(table_id, item, spider)
+        for item_key in item:
+            if isinstance(item[item_key], datetime.date):
+                item[item_key] = item[item_key].strftime("%Y-%m-%d")
         errors = self.client.insert_rows_json(table_id, [item])
         if errors:
             spider.logger.error(f"Error inserting rows to BigQuery: {errors}")
@@ -76,7 +79,7 @@ class BigQueryPipeline:
         if spider.settings.get("BIGQUERY_ADD_SCRAPER_NAME", False):
             item["scraper"] = spider.name
         if spider.settings.get("BIGQUERY_ADD_SCRAPER_SESSION", False):
-            item["scraper_session_id"] = spider.name
+            item["scraper_session_id"] = self.session_id
         for key in item:
             if isinstance(item[key], datetime.datetime):
                 item[key] = str(item[key])
