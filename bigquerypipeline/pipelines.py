@@ -34,6 +34,7 @@ class BigQueryPipeline:
         self.tables_created: typing.Set[str] = set()
         self.schema_generator = SchemaGenerator(input_format="dict")
         self.session_id = str(uuid.uuid4())
+        self.item_cache = {}
 
     @classmethod
     def from_crawler(cls, crawler) -> typing.Any:
@@ -55,10 +56,14 @@ class BigQueryPipeline:
         for item_key in item:
             if isinstance(item[item_key], datetime.date):
                 item[item_key] = item[item_key].strftime("%Y-%m-%d")
-        errors = self.client.insert_rows_json(table_id, [item])
-        if errors:
-            spider.logger.error(f"Error inserting rows to BigQuery: {errors}")
+        if table_id not in self.item_cache:
+            self.item_cache[table_id] = []
+        self.item_cache[table_id].append(item)
+        self.flush_items(spider)
         return item
+
+    def close_spider(self, spider):
+        self.flush_items(spider, force=True)
 
     def table_id(
         self, item: typing.Dict, spider: scrapy.Spider
@@ -107,3 +112,13 @@ class BigQueryPipeline:
             pass
         except Exception:
             pass
+
+    def flush_items(self, spider: scrapy.Spider, force=False):
+        """Flush the items cache if it is big enough for the settings."""
+        for table_id in self.item_cache:
+            items = self.item_cache[table_id]
+            if len(items) >= spider.settings.get("BIGQUERY_ITEM_BATCH", 1) or force:
+                errors = self.client.insert_rows_json(table_id, items)
+                if errors:
+                    spider.logger.error(f"Error inserting rows to BigQuery: {errors}")
+                self.item_cache[table_id] = []

@@ -47,6 +47,10 @@ Whether to add the name of the scraper to the item when posting it to BigQuery. 
 
 Whether to add the session ID of the scraper to the item when posting it to BigQuery. This will add the scrapers session ID to the column `scraper_session_id` in the BigQuery table.
 
+### BIGQUERY_ITEM_BATCH (Optional)
+
+The number of items to batch process when inserting into BigQuery. The higher this number the faster the pipeline will process items.
+
 ## Usage example :eyes:
 
 In order to use this plugin simply add the following settings and substitute your variables:
