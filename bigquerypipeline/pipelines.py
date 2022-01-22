@@ -117,6 +117,8 @@ class BigQueryPipeline:
         """Flush the items cache if it is big enough for the settings."""
         for table_id in self.item_cache:
             items = self.item_cache[table_id]
+            if not items:
+                continue
             if len(items) >= spider.settings.get("BIGQUERY_ITEM_BATCH", 1) or force:
                 errors = self.client.insert_rows_json(table_id, items)
                 if errors:
