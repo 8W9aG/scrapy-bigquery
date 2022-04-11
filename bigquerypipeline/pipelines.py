@@ -112,6 +112,7 @@ class BigQueryPipeline:
             pass
         except Exception:
             pass
+        self.tables_created.add(table_id)
 
     def flush_items(self, spider: scrapy.Spider, force=False):
         """Flush the items cache if it is big enough for the settings."""
