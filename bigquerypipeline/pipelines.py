@@ -7,7 +7,7 @@ import uuid
 
 import scrapy
 from bigquery_schema_generator.generate_schema import SchemaGenerator
-from google.api_core.exceptions import Conflict
+from google.api_core.exceptions import Conflict, NotFound
 from google.cloud import bigquery
 from google.oauth2 import service_account
 from scrapy.exceptions import NotConfigured
@@ -97,6 +97,8 @@ class BigQueryPipeline:
         if table_id in self.tables_created:
             return
         try:
+            self.client.get_table(table_id)
+        except NotFound:
             schema_map, error_logs = self.schema_generator.deduce_schema(
                 input_data=[item]
             )
@@ -108,10 +110,6 @@ class BigQueryPipeline:
                 table_id, schema=self.schema_generator.flatten_schema(schema_map)
             )
             self.client.create_table(table)
-        except Conflict:
-            pass
-        except Exception:
-            pass
         self.tables_created.add(table_id)
 
     def flush_items(self, spider: scrapy.Spider, force=False):
