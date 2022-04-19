@@ -25,12 +25,12 @@ class BigQueryPipeline:
         )
         self.client = bigquery.Client(credentials=credentials)
         self.project_id = service_account_info["project_id"]
+        dataset_id = f"{self.project_id}.{dataset_id}"
         try:
-            dataset = bigquery.Dataset(f"{self.project_id}.{dataset_id}")
-            self.client.create_dataset(dataset, timeout=30)
-        except Conflict:
+            self.client.get_dataset(dataset_id)
+        except NotFound:
             # It already exists
-            pass
+            self.client.create_dataset(dataset_id, timeout=30, exists_ok=True)
         self.tables_created: typing.Set[str] = set()
         self.schema_generator = SchemaGenerator(input_format="dict")
         self.session_id = str(uuid.uuid4())
