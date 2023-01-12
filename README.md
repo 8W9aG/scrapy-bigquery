@@ -8,10 +8,10 @@ A Big Query pipeline to store items into [Google BigQuery](https://cloud.google.
 
 ## Dependencies :globe_with_meridians:
 
-* [Python 3.7](https://www.python.org/downloads/release/python-370/)
-* [Scrapy 2.4.0](https://scrapy.org/)
-* [Google Cloud Bigquery 2.23.2](https://pypi.org/project/google-cloud-bigquery/)
-* [Bigquery Schema Generator 1.4](https://github.com/bxparks/bigquery-schema-generator)
+- [Python 3.7](https://www.python.org/downloads/release/python-370/)
+- [Scrapy 2.4.0](https://scrapy.org/)
+- [Google Cloud Bigquery 2.23.2](https://pypi.org/project/google-cloud-bigquery/)
+- [Bigquery Schema Generator 1.4](https://github.com/bxparks/bigquery-schema-generator)
 
 ## Installation :inbox_tray:
 
@@ -51,6 +51,10 @@ Whether to add the session ID of the scraper to the item when posting it to BigQ
 
 The number of items to batch process when inserting into BigQuery. The higher this number the faster the pipeline will process items.
 
+### BIGQUERY_FIELDS_TO_SAVE (Optional)
+
+A list of item fields to save to BigQuery. If this is not set, all fields of an item will be saved.
+
 ## Usage example :eyes:
 
 In order to use this plugin simply add the following settings and substitute your variables:
@@ -62,6 +66,7 @@ BIGQUERY_SERVICE_ACCOUNT = "eyJ0eX=="
 ITEM_PIPELINES = {
     "bigquerypipeline.pipelines.BigQueryPipeline": 301
 }
+BIGQUERY_FIELDS_TO_SAVE = ["name", "age"] # Optional. This will only save the name and age fields of an item to BigQuery.
 ```
 
 The pipeline will attempt to create a dataset/table if none exist by inferring the type from the dictionaries it processes, however be aware that this can be flaky (especially if you have nulls in the dictionary), so it is recommended you create the table prior to running.

@@ -53,6 +53,9 @@ class BigQueryPipeline:
     def process_item(self, item: typing.Dict, spider: scrapy.Spider) -> typing.Dict:
         table_id, item = self.table_id(item, spider)
         self.ensure_table_created(table_id, item, spider)
+        fields_to_save = spider.settings.get("BIGQUERY_FIELDS_TO_SAVE", None)
+        if fields_to_save:
+            item = {key: item[key] for key in item if key in fields_to_save}
         for item_key in item:
             if isinstance(item[item_key], datetime.date):
                 item[item_key] = item[item_key].strftime("%Y-%m-%d")
