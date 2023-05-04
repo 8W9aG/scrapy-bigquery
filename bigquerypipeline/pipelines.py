@@ -56,9 +56,17 @@ class BigQueryPipeline:
         fields_to_save = spider.settings.get("BIGQUERY_FIELDS_TO_SAVE", None)
         if fields_to_save:
             item = {key: item[key] for key in item if key in fields_to_save}
-        for item_key in item:
-            if isinstance(item[item_key], datetime.date):
-                item[item_key] = item[item_key].strftime("%Y-%m-%d")
+        
+        def serialise_value(value: typing.Any) -> typing.Any:
+            if isinstance(value, datetime.date):
+                value = value.strftime("%Y-%m-%d")
+            if isinstance(value, dict):
+                for key in value:
+                    value[key] = serialise_value(value[key])
+            return value
+        
+        item = serialise_value(item)
+
         if table_id not in self.item_cache:
             self.item_cache[table_id] = []
         self.item_cache[table_id].append(item)
