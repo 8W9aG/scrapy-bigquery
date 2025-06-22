@@ -8,7 +8,7 @@ A Big Query pipeline to store items into [Google BigQuery](https://cloud.google.
 
 ## Dependencies :globe_with_meridians:
 
-- [Python 3.7](https://www.python.org/downloads/release/python-370/)
+- [Python 3.8](https://www.python.org/downloads/release/python-380/)
 - [Scrapy 2.4.0](https://scrapy.org/)
 - [Google Cloud Bigquery 2.23.2](https://pypi.org/project/google-cloud-bigquery/)
 - [Bigquery Schema Generator 1.4](https://github.com/bxparks/bigquery-schema-generator)
@@ -29,11 +29,13 @@ The name of the bigquery dataset to post to.
 
 The name of the bigquery table in the dataset to post to.
 
-### BIGQUERY_SERVICE_ACCOUNT (Required)
+### BIGQUERY_SERVICE_ACCOUNT (Optional)
 
 The base64'd JSON of the [Google Service Account](https://cloud.google.com/iam/docs/service-accounts) used to authenticate with Google BigQuery. You can generate it from a service account like so:
 
 `cat service-account.json | jq . -c | base64`
+
+If not set, authentication falls back to the [Application Default Credentials](https://cloud.google.com/docs/authentication/application-default-credentials).
 
 ### BIGQUERY_ADD_SCRAPED_TIME (Optional)
 
@@ -62,7 +64,7 @@ In order to use this plugin simply add the following settings and substitute you
 ```
 BIGQUERY_DATASET = "my-dataset"
 BIGQUERY_TABLE = "my-table"
-BIGQUERY_SERVICE_ACCOUNT = "eyJ0eX=="
+BIGQUERY_SERVICE_ACCOUNT = "eyJ0eX==" # Optional. The use of Application Default Credentials is recommended instead.
 ITEM_PIPELINES = {
     "bigquerypipeline.pipelines.BigQueryPipeline": 301
 }
