@@ -1,4 +1,5 @@
 """The pipelines used for sending items to BigQuery."""
+
 import base64
 import datetime
 import json
@@ -6,8 +7,9 @@ import typing
 import uuid
 
 import scrapy
+import scrapy.crawler
 from bigquery_schema_generator.generate_schema import SchemaGenerator
-from google.api_core.exceptions import Conflict, NotFound
+from google.api_core.exceptions import NotFound
 from google.cloud import bigquery
 from google.oauth2 import service_account
 from scrapy.exceptions import NotConfigured
@@ -19,12 +21,16 @@ class BigQueryPipeline:
     bigquery_dataset_key = "BIGQUERY_DATASET"
     bigquery_table_key = "BIGQUERY_TABLE"
 
-    def __init__(self, service_account_info: typing.Dict, dataset_id: str):
-        credentials = service_account.Credentials.from_service_account_info(
-            service_account_info
+    def __init__(
+        self, dataset_id: str, service_account_info: typing.Optional[typing.Dict] = None
+    ):
+        credentials = (
+            service_account.Credentials.from_service_account_info(service_account_info)
+            if service_account_info
+            else None
         )
         self.client = bigquery.Client(credentials=credentials)
-        self.project_id = service_account_info["project_id"]
+        self.project_id = self.client.project
         dataset_id = f"{self.project_id}.{dataset_id}"
         try:
             self.client.get_dataset(dataset_id)
@@ -37,18 +43,20 @@ class BigQueryPipeline:
         self.item_cache = {}
 
     @classmethod
-    def from_crawler(cls, crawler) -> typing.Any:
-        service_account_json = base64.b64decode(
-            crawler.settings.get("BIGQUERY_SERVICE_ACCOUNT")
-        ).decode()
-        try:
-            gcp_service_account = json.loads(service_account_json)
-        except json.decoder.JSONDecodeError:
-            raise NotConfigured(
-                "Could not decode BIGQUERY_SERVICE_ACCOUNT, disabling BigQuery middleware"
-            )
+    def from_crawler(cls, crawler: scrapy.crawler.Crawler) -> typing.Self:
+        if service_account_setting := crawler.settings.get("BIGQUERY_SERVICE_ACCOUNT"):
+            service_account_json = base64.b64decode(service_account_setting).decode()
+            try:
+                gcp_service_account = json.loads(service_account_json)
+            except json.decoder.JSONDecodeError:
+                raise NotConfigured(
+                    "Could not decode BIGQUERY_SERVICE_ACCOUNT, disabling BigQuery middleware"
+                )
+        else:
+            # Fallback to Application Default Credentials
+            gcp_service_account = None
         dataset = crawler.settings.get("BIGQUERY_DATASET")
-        return cls(service_account_info=gcp_service_account, dataset_id=dataset)
+        return cls(dataset_id=dataset, service_account_info=gcp_service_account)
 
     def process_item(self, item: typing.Dict, spider: scrapy.Spider) -> typing.Dict:
         table_id, item = self.table_id(item, spider)
@@ -56,7 +64,7 @@ class BigQueryPipeline:
         fields_to_save = spider.settings.get("BIGQUERY_FIELDS_TO_SAVE", None)
         if fields_to_save:
             item = {key: item[key] for key in item if key in fields_to_save}
-        
+
         def serialise_value(value: typing.Any) -> typing.Any:
             if isinstance(value, datetime.date):
                 value = value.strftime("%Y-%m-%d")
@@ -64,7 +72,7 @@ class BigQueryPipeline:
                 for key in value:
                     value[key] = serialise_value(value[key])
             return value
-        
+
         item = serialise_value(item)
 
         if table_id not in self.item_cache:
